@@ -1,5 +1,5 @@
 from homeassistant import config_entries
-#import voluptuous as vol
+import voluptuous as vol
 from .const import DOMAIN
 
 class EnergetycznyKompasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
