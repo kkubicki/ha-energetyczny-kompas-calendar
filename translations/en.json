@@ -1,0 +1,13 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Configure Energetyczny Kompas.",
+                "title": "Energetyczny Kompas"
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "Only one instance of Energetyczny Kompas is allowed."
+        }
+    }
+}

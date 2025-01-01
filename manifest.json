@@ -1,0 +1,11 @@
+{
+  "domain": "energetyczny_kompas",
+  "name": "Energetyczny Kompas",
+  "version": "1.0.0",
+  "documentation": "https://github.com/kkubicki/ha-energetyczny-kompas-calendar",
+  "requirements": ["requests"],
+  "dependencies": [],
+  "config_flow": true,
+  "codeowners": ["@kkubicki"],
+  "iot_class": "cloud_polling"
+}
