@@ -6,8 +6,7 @@
 
 1. **Add to HACS**:
    - Open HACS in Home Assistant.
-   - Go to "Integrations."
-   - Click on the "+" button and add this repository (``https://github.com/kkubicki/ha-energetyczny-kompas-calendar) as a custom repository.
+   - Click on the "..." button and add this repository (``https://github.com/kkubicki/ha-energetyczny-kompas-calendar) as a custom repository.
 
 2. **Install the Integration**:
    - Search for "Energetyczny Kompas" in HACS and install it.
