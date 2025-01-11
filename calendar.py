@@ -15,7 +15,7 @@ class EnergetycznyKompasCalendar(CalendarEntity):
 
     def __init__(self):
         super().__init__()
-        self._name = "Energetyczny Kompas Calendar"
+        self._name = "Energetyczny Kompas"
         self._events: list[CalendarEvent] = []
         self._attr_unique_id = f"{DOMAIN}_calendar"
         self._attr_name = "Energetyczny Kompas Calendar"
