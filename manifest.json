@@ -1,6 +1,6 @@
 {
   "domain": "energetyczny_kompas",
-  "name": "Energetyczny Kompas",
+  "name": "Energetyczny Kompas Calendar",
   "version": "1.0.0",
   "documentation": "https://github.com/kkubicki/ha-energetyczny-kompas-calendar",
   "requirements": ["requests"],

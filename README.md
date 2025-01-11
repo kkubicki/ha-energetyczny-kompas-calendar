@@ -1,7 +1,7 @@
-# Energetyczny Kompas
+# Energetyczny Kompas Calendar
 ![Energetyczny Kompas logo](logo.png)
 
-**Energetyczny Kompas** is a Home Assistant custom component that integrates data from [Energetyczny Kompas](https://www.energetycznykompas.pl). It fetches electricity demand and usage recommendations and displays them in your Home Assistant calendar.
+**Energetyczny Kompas Calendar** is a Home Assistant custom component that integrates data from [Energetyczny Kompas](https://www.energetycznykompas.pl). It fetches electricity demand and usage recommendations and displays them in your Home Assistant calendar.
 
 ## Installation
 
@@ -10,13 +10,13 @@
    - Click on the "..." button and add this repository (https://github.com/kkubicki/ha-energetyczny-kompas-calendar) as a custom repository.
 
 2. **Install the Integration**:
-   - Search for "Energetyczny Kompas" in HACS and install it.
+   - Search for "Energetyczny Kompas Calendar" in HACS and install it.
 
 3. **Restart Home Assistant**:
    - Restart your Home Assistant to load the component.
 
 4. **Configure**:
-   - Add the integration via Home Assistant → Settings → Devices & Services → Add Integration → "Energetyczny Kompas."
+   - Add the integration via Home Assistant → Settings → Devices & Services → Add Integration → "Energetyczny Kompas Calendar."
 
 ## Usage
 
