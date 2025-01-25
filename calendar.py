@@ -6,7 +6,14 @@ import aiohttp
 import logging
 
 _LOGGER = logging.getLogger(__name__)
-URL = "https://data.energetycznykompas.pl/datafile/godzinyszczytu.json"
+URL = "https://api.raporty.pse.pl/api/pdgsz?$filter=udtczas%20gt%20'{}'"
+
+STATUS_MAPPING = {
+    0: "ZALECANE UŻYTKOWANIE",
+    1: "NORMALNE UŻYTKOWANIE",
+    2: "ZALECANE OSZCZĘDZANIE",
+    3: "WYMAGANE OGRANICZANIE",
+}
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities([EnergetycznyKompasCalendar()])
@@ -48,29 +55,31 @@ class EnergetycznyKompasCalendar(CalendarEntity):
 
     async def async_update(self):
         try:
+            formatted_date = dt_util.now().strftime("%Y-%m-%d")
+            url = URL.format(formatted_date)
+
             async with aiohttp.ClientSession() as session:
-                async with session.get(URL) as response:
+                async with session.get(url) as response:
                     response.raise_for_status()
                     data = await response.json()
 
             self._events = [
                 CalendarEvent(
-                    summary=f"Status: {entry['status']}",
-                    start=self._format_time(entry["data"], entry["godzina"]),
-                    end=self._format_time(entry["data"], entry["godzina"] + 1),
-                    description=f"Zapotrzebowanie: {entry['zapotrzebowanie']} MW",
+                    summary=f"Status: {STATUS_MAPPING.get(entry['znacznik'], 'NIEZNANY STATUS')}",
+                    start=self._parse_time(entry["udtczas"]),
+                    end=self._parse_time(entry["udtczas"], add_hour=True),
+                    description=f"{entry['znacznik']}",
                 )
-                for entry in data
+                for entry in data["value"]
             ]
         except Exception as e:
-            _LOGGER.error("Error fetching data from Energetyczny Kompas: %s", e)
+            _LOGGER.error("Error fetching data from PSE API: %s", e)
             self._events = []
 
-    def _format_time(self, date_str, hour):
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    def _parse_time(self, timestamp: str, add_hour: bool = False) -> datetime:
+        date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
 
-        if hour == 24:
-            date_obj += timedelta(days=1)
-            hour = 0
+        if add_hour:
+            date_obj += timedelta(hours=1)
 
-        return date_obj.replace(hour=hour, tzinfo=dt_util.DEFAULT_TIME_ZONE)
+        return date_obj.replace(tzinfo=dt_util.DEFAULT_TIME_ZONE)
