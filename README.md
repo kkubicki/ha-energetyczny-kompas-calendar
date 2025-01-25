@@ -22,12 +22,18 @@
 
 Once installed, this component will:
 - Fetch electricity demand data from [Energetyczny Kompas](https://www.energetycznykompas.pl).
-- Populate your Home Assistant calendar with hourly events indicating electricity demand (`Zapotrzebowanie`) and status (`Status`).
+- Populate your Home Assistant calendar with hourly events indicating electricity demand status (`Status`) in text and numerical form:
+   ```
+   "Status: ZALECANE UŻYTKOWANIE"  : 0
+   "Status: NORMALNE UŻYTKOWANIE"  : 1
+   "Status: ZALECANE OSZCZĘDZANIE" : 2
+   "Status: WYMAGANE OGRANICZANIE" : 3
+   ```
 
 ### Example Calendar Event
 
 - **Title**: `Status: ZALECANE UŻYTKOWANIE`
-- **Description**: `Zapotrzebowanie: 16163 MW`
+- **Description**: `0`
 - **Start Time**: `2024-12-20T00:00:00`
 - **End Time**: `2024-12-20T00:59:59`
 
