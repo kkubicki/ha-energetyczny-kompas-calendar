@@ -37,3 +37,46 @@ Once installed, this component will:
 - **Start Time**: `2024-12-20T00:00:00`
 - **End Time**: `2024-12-20T00:59:59`
 
+### Basic automation
+
+You can create simple sensor helper using the following template:
+```
+{{ state_attr('calendar.energetyczny_kompas', 'description') }}
+```
+This will hold the recommended usage status (in numerical form) for the current hour.
+
+### Advanced automation
+
+For more advanced data manipulation, `calendar.get_event` action can be used. 
+Here is example of checking next hour status and storing it in `input_number.energetyczny_kompas_next_status` (a `Number` type helper).
+```
+alias: Check Energetyczny Kompas next hour status
+description: ""
+triggers:
+  - trigger: time_pattern
+    minutes: /5
+conditions: []
+actions:
+  - action: calendar.get_events
+    metadata: {}
+    data:
+      duration:
+        hours: 1
+        minutes: 0
+        seconds: 0
+    target:
+      entity_id: calendar.energetyczny_kompas
+    response_variable: result
+  - action: input_number.set_value
+    metadata: {}
+    data:
+      value: "{{ result['calendar.energetyczny_kompas'].events[0].description }}"
+    target:
+      entity_id: input_number.energetyczny_kompas_next_status
+mode: single
+```
+
+
+
+
+
