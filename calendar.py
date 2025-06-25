@@ -6,7 +6,7 @@ import aiohttp
 import logging
 
 _LOGGER = logging.getLogger(__name__)
-URL = "https://api.raporty.pse.pl/api/pdgsz?$filter=udtczas%20gt%20'{}'"
+URL = "https://api.raporty.pse.pl/api/pdgsz?$filter=dtime%20gt%20'{}'%20and%20is_active%20eq%20true"
 
 STATUS_MAPPING = {
     0: "ZALECANE UŻYTKOWANIE",
@@ -65,10 +65,10 @@ class EnergetycznyKompasCalendar(CalendarEntity):
 
             self._events = [
                 CalendarEvent(
-                    summary=f"Status: {STATUS_MAPPING.get(entry['znacznik'], 'NIEZNANY STATUS')}",
-                    start=self._parse_time(entry["udtczas"]),
-                    end=self._parse_time(entry["udtczas"], add_hour=True),
-                    description=f"{entry['znacznik']}",
+                    summary=f"Status: {STATUS_MAPPING.get(entry['usage_fcst'], 'NIEZNANY STATUS')}",
+                    start=self._parse_time(entry["dtime"]),
+                    end=self._parse_time(entry["dtime"], add_hour=True),
+                    description=f"{entry['usage_fcst']}",
                 )
                 for entry in data["value"]
             ]
@@ -77,7 +77,7 @@ class EnergetycznyKompasCalendar(CalendarEntity):
             self._events = []
 
     def _parse_time(self, timestamp: str, add_hour: bool = False) -> datetime:
-        date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
 
         if add_hour:
             date_obj += timedelta(hours=1)
