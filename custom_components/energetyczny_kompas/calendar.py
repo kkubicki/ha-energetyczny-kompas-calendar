@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+import logging
 from datetime import datetime, timedelta, timezone
+
+import aiohttp
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.util import dt as dt_util
+
 from .const import DOMAIN
-import aiohttp
-import logging
 
 _LOGGER = logging.getLogger(__name__)
-URL = "https://api.raporty.pse.pl/api/pdgsz?$filter=dtime%20gt%20'{}'%20and%20is_active%20eq%20true"
+
+URL = (
+    "https://api.raporty.pse.pl/api/pdgsz?$filter=dtime%20gt%20'{}'%20and%20is_active%20eq%20true"
+)
 
 STATUS_MAPPING = {
     0: "ZALECANE UŻYTKOWANIE",
@@ -15,11 +22,12 @@ STATUS_MAPPING = {
     3: "WYMAGANE OGRANICZANIE",
 }
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities([EnergetycznyKompasCalendar()])
 
-class EnergetycznyKompasCalendar(CalendarEntity):
 
+class EnergetycznyKompasCalendar(CalendarEntity):
     def __init__(self):
         super().__init__()
         self._name = "Energetyczny Kompas"
@@ -48,9 +56,7 @@ class EnergetycznyKompasCalendar(CalendarEntity):
     ) -> list[CalendarEvent]:
         await self.async_update()
         return [
-            event
-            for event in self._events
-            if start_date <= event.start < end_date
+            event for event in self._events if start_date <= event.start < end_date
         ]
 
     async def async_update(self):
@@ -79,7 +85,7 @@ class EnergetycznyKompasCalendar(CalendarEntity):
     def _parse_time(self, timestamp: str, add_hour: bool = False) -> datetime:
         date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
         date_obj = date_obj.replace(tzinfo=timezone.utc)
-    
+
         if add_hour:
             date_obj += timedelta(hours=1)
 

@@ -3,7 +3,7 @@
   "name": "Energetyczny Kompas Calendar",
   "version": "1.0.0",
   "documentation": "https://github.com/kkubicki/ha-energetyczny-kompas-calendar",
-  "requirements": ["requests"],
+  "requirements": [],
   "dependencies": [],
   "config_flow": true,
   "codeowners": ["@kkubicki"],
