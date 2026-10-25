@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.util import dt as dt_util
 from .const import DOMAIN
@@ -66,8 +66,8 @@ class EnergetycznyKompasCalendar(CalendarEntity):
             self._events = [
                 CalendarEvent(
                     summary=f"Status: {STATUS_MAPPING.get(entry['usage_fcst'], 'NIEZNANY STATUS')}",
-                    start=self._parse_time(entry["dtime"]),
-                    end=self._parse_time(entry["dtime"], add_hour=True),
+                    start=self._parse_time(entry["dtime_utc"]),
+                    end=self._parse_time(entry["dtime_utc"], add_hour=True),
                     description=f"{entry['usage_fcst']}",
                 )
                 for entry in data["value"]
@@ -78,8 +78,9 @@ class EnergetycznyKompasCalendar(CalendarEntity):
 
     def _parse_time(self, timestamp: str, add_hour: bool = False) -> datetime:
         date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-
+        date_obj = date_obj.replace(tzinfo=timezone.utc)
+    
         if add_hour:
             date_obj += timedelta(hours=1)
 
-        return date_obj.replace(tzinfo=dt_util.DEFAULT_TIME_ZONE)
+        return date_obj.astimezone(dt_util.DEFAULT_TIME_ZONE)
