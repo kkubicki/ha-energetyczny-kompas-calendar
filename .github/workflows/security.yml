@@ -1,0 +1,60 @@
+name: Security Audit
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install audit tools
+        run: python -m pip install --upgrade pip pip-audit
+
+      - name: Build temporary requirements from manifest if available
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest_path = Path("custom_components/energetyczny_kompas/manifest.json")
+          if not manifest_path.exists():
+              print("No manifest.json found; skipping dependency audit.")
+              raise SystemExit(0)
+
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          requirements = manifest.get("requirements", [])
+
+          if not requirements:
+              print("No runtime dependencies declared in manifest.json; skipping dependency audit.")
+              raise SystemExit(0)
+
+          req_file = Path("/tmp/requirements.txt")
+          req_file.write_text("\n".join(requirements) + "\n", encoding="utf-8")
+          print(f"Wrote {len(requirements)} requirement(s) to {req_file}")
+          PY
+
+      - name: Audit dependencies
+        run: |
+          if [ -f /tmp/requirements.txt ]; then
+            pip-audit -r /tmp/requirements.txt --progress-spinner off
+          else
+            echo "No dependency file available; skipping pip-audit."
+          fi

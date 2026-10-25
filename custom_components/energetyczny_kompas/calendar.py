@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import aiohttp
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
@@ -11,9 +11,7 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-URL = (
-    "https://api.raporty.pse.pl/api/pdgsz?$filter=dtime%20gt%20'{}'%20and%20is_active%20eq%20true"
-)
+URL = "https://api.raporty.pse.pl/api/pdgsz?$filter=dtime%20gt%20'{}'%20and%20is_active%20eq%20true"
 
 STATUS_MAPPING = {
     0: "ZALECANE UŻYTKOWANIE",
@@ -55,19 +53,16 @@ class EnergetycznyKompasCalendar(CalendarEntity):
         self, hass, start_date: datetime, end_date: datetime
     ) -> list[CalendarEvent]:
         await self.async_update()
-        return [
-            event for event in self._events if start_date <= event.start < end_date
-        ]
+        return [event for event in self._events if start_date <= event.start < end_date]
 
     async def async_update(self):
         try:
             formatted_date = dt_util.now().strftime("%Y-%m-%d")
             url = URL.format(formatted_date)
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    response.raise_for_status()
-                    data = await response.json()
+            async with aiohttp.ClientSession() as session, session.get(url) as response:
+                response.raise_for_status()
+                data = await response.json()
 
             self._events = [
                 CalendarEvent(
@@ -78,13 +73,13 @@ class EnergetycznyKompasCalendar(CalendarEntity):
                 )
                 for entry in data["value"]
             ]
-        except Exception as e:
-            _LOGGER.error("Error fetching data from PSE API: %s", e)
+        except Exception:
+            _LOGGER.exception("Error fetching data from PSE API")
             self._events = []
 
     def _parse_time(self, timestamp: str, add_hour: bool = False) -> datetime:
         date_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-        date_obj = date_obj.replace(tzinfo=timezone.utc)
+        date_obj = date_obj.replace(tzinfo=UTC)
 
         if add_hour:
             date_obj += timedelta(hours=1)
