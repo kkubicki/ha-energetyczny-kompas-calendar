@@ -1,2 +1,1 @@
 DOMAIN = "energetyczny_kompas"
-
