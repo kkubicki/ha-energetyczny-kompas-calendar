@@ -185,3 +185,69 @@ async def test_async_update_network_error_retains_events() -> None:
 
     # Events should be retained, not wiped
     assert calendar._events == [existing_event]
+
+
+@pytest.mark.asyncio
+async def test_async_update_skips_malformed_entries() -> None:
+    """Test async_update skips null or non-dict items and processes valid ones."""
+    calendar = EnergetycznyKompasCalendar()
+    mock_hass = MagicMock()
+    calendar.hass = mock_hass
+
+    api_payload = {
+        "value": [
+            None,
+            "not a dict",
+            123,
+            {"dtime_utc": "2026-10-29 10:00", "usage_fcst": 0},
+            {"dtime_utc": None, "usage_fcst": 1},
+            {"invalid_keys": True},
+        ]
+    }
+
+    mock_resp = AsyncMock()
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json = AsyncMock(return_value=api_payload)
+
+    mock_session = MagicMock()
+    mock_session.get.return_value.__aenter__.return_value = mock_resp
+
+    with patch(
+        "custom_components.energetyczny_kompas.calendar.async_get_clientsession",
+        return_value=mock_session,
+    ):
+        await calendar.async_update()
+
+    assert len(calendar._events) == 1
+    assert calendar._events[0].summary == "Status: ZALECANE UŻYTKOWANIE"
+
+
+@pytest.mark.asyncio
+async def test_async_update_invalid_top_level_payload() -> None:
+    """Test async_update handles non-dict top level responses gracefully."""
+    calendar = EnergetycznyKompasCalendar()
+    mock_hass = MagicMock()
+    calendar.hass = mock_hass
+
+    existing_event = CalendarEvent(
+        start=dt_util.now(),
+        end=dt_util.now() + timedelta(hours=1),
+        summary="Existing",
+    )
+    calendar._events = [existing_event]
+
+    mock_resp = AsyncMock()
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json = AsyncMock(return_value=["not", "a", "dict"])
+
+    mock_session = MagicMock()
+    mock_session.get.return_value.__aenter__.return_value = mock_resp
+
+    with patch(
+        "custom_components.energetyczny_kompas.calendar.async_get_clientsession",
+        return_value=mock_session,
+    ):
+        await calendar.async_update()
+
+    # Should retain existing events rather than crashing
+    assert calendar._events == [existing_event]

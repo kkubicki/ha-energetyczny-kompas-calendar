@@ -30,4 +30,3 @@ async def test_async_setup_and_unload_entry() -> None:
     hass.config_entries.async_unload_platforms.assert_awaited_once_with(
         entry, PLATFORMS
     )
-

@@ -99,6 +99,13 @@ class EnergetycznyKompasCalendar(CalendarEntity):
             _LOGGER.exception("Unexpected error fetching data from PSE API")
             return
 
+        if not isinstance(data, dict):
+            _LOGGER.warning(
+                "Unexpected data format from PSE API: expected dict, got %s",
+                type(data).__name__,
+            )
+            return
+
         values = data.get("value")
         if not isinstance(values, list):
             _LOGGER.warning("Unexpected data format from PSE API: missing 'value' list")
@@ -106,6 +113,10 @@ class EnergetycznyKompasCalendar(CalendarEntity):
 
         events: list[CalendarEvent] = []
         for entry in values:
+            if not isinstance(entry, dict):
+                _LOGGER.debug("Skipping non-dict PSE entry: %s", entry)
+                continue
+
             dtime_utc = entry.get("dtime_utc")
             usage_fcst = entry.get("usage_fcst")
             if not dtime_utc or usage_fcst is None:
